@@ -1,0 +1,31 @@
+import re
+
+def parse_wifi_passwords(text):
+    """
+    Parses WiFi SSID and password pairs from the given text.
+    Supports common formats like:
+    - SSID: MyWifi, Password: mypassword
+    - SSID=MyWifi;Password=mypassword
+    - WIFI:S:MyWifi;T:WPA;P:mypassword;;
+    Returns a list of dictionaries: [{'ssid': ..., 'password': ...}, ...]
+    """
+    patterns = [
+        r'SSID[:=]\s*([^\s,;]+)[,;]\s*Password[:=]\s*([^\s,;]+)',
+        r'WIFI:S:([^;]+);T:[^;]+;P:([^;]+);;',
+        r'SSID[:=]\s*([^\s,;]+)[,;]\s*PASS(?:WORD)?[:=]\s*([^\s,;]+)'
+    ]
+    results = []
+    for pattern in patterns:
+        for match in re.findall(pattern, text, re.IGNORECASE):
+            results.append({'ssid': match[0], 'password': match[1]})
+    return results
+
+# Example usage:
+if __name__ == "__main__":
+    sample = """
+    SSID: HomeWifi, Password: secret123
+    WIFI:S:OfficeNet;T:WPA;P:workpass;;
+    SSID=Guest;Password=guestpass
+    """
+    for wifi in parse_wifi_passwords(sample):
+        print(f"SSID: {wifi['ssid']}, Password: {wifi['password']}")
